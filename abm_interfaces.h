@@ -67,30 +67,20 @@ class InterfaceList {
         std::vector<ABMInterface> interfaces;
 };
 
-class ABMUInterfaceList : public InterfaceList {
-    public:
-        ABMUInterfaceList(const Sample &sample, double airRI, double cuticleRI, double mesophyllRI, double
-                antidermalRI, double mesophyllAbsorption, double mesophyllThickness);
-        virtual void prepareForSample();
-    private:
-        double airRI;
-        double cuticleRI;
-        double mesophyllRI;
-        double antidermalRI;
-        double mesophyllAbsorption;
-        double mesophyllThickness;
-};
 
 class ABMInterfaceListBuilder {
     public:
+        ABMInterfaceListBuilder() {
+        }
         ABMInterfaceListBuilder(const std::string &dataDirectory);
-        ~ABMInterfaceListBuilder();
+        virtual InterfaceList *buildInterfaces(const Sample &sample, int wavelength);
 
-        InterfaceList *buildInterfaces(const Sample &sample, int wavelength);
-
-    private:
-        void readAllData(const std::string &dataDirectory);
-        void readData(std::string filename, DataList &dlist);
+    protected:
+        virtual void readAllData(const std::string &dataDirectory);
+        virtual void readData(std::string filename, DataList &dlist);
+        virtual InterfaceList *createInterfaceList(const Sample &sample, double airRI, 
+                double cuticleRI, double mesophyllRI, double antidermalRI,
+                double mesophyllAbsorption, double mesophyllThickness);
 
         std::string dataDirectory;
         DataList carotenoidAbsorption;

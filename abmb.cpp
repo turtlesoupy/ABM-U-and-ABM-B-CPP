@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-#include "abmu_interfaces.h"
+#include "abmb_interfaces.h"
 #include "run_abm.h"
 #include "sample_parser.h"
 #include "sample.h"
@@ -14,7 +14,7 @@
 #include "unistd.h"
 
 void usage() { 
-    fprintf(stderr, "Usage: ./abmu [options] <sample_file.json> <output_file.csv>\n");
+    fprintf(stderr, "Usage: ./abmb [options] <sample_file.json> <output_file.csv>\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "\t-n <int>\tNumber of samples\n");
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Running simulation (%d samples, wavelengths %dnm-%dnm)...\n",
                 numSamples, wavelengthStart, wavelengthEnd);
 
-        ABMUInterfaceListBuilder interfaceBuilder(datadir);
+        ABMBInterfaceListBuilder interfaceBuilder(datadir);
         for(int w = wavelengthStart; w <= wavelengthEnd; w+= step) {
             fprintf(stderr, "Wavelength %d\t", w);
             fflush(stderr);
