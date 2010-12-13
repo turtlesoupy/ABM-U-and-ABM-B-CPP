@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     int numSamples = 100000;
     double azimuthalAngle = 0.0;
     double polarAngle = 8.0 * M_PI / 180;
-    char *datadir = (char *)"../data/all";
+    char *datadir = (char *)"data";
     int wavelengthStart = 400;
     int wavelengthEnd   = 2500;
     int c;
