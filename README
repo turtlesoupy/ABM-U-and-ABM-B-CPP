@@ -12,8 +12,10 @@ for more information.
 
 Usage:
     - Run "make abmu" to make an abmu executible. Run "make abmb" to 
-      make an abmb executible. Afterwards, run "./abmu" or "./abmb" and follow
-      the instructions.
+      make an abmb executible. Afterwards,
+      run "./abmu samples/lopex_0219-0220.json output.csv" 
+      or  "./abmb samples/lopex_0141-0142.json output.csv". You can specify more
+      detailed options too, just run "./abmu" to see them all.
     - Data has been included in the "data" subdirectory. Descriptions of the
       data is available here: http://www.npsg.uwaterloo.ca/data.php
 
