@@ -2,7 +2,7 @@ ABM-B and ABM-U
 
 This is a reference implementation of the ABM-B and ABM-U models described in
 http://www.npsg.uwaterloo.ca/resources/docs/rse2006.pdf, with modifications
-descriped in http://www.npsg.uwaterloo.ca/resources/docs/ieee07-8.pdf
+described in http://www.npsg.uwaterloo.ca/resources/docs/ieee07-8.pdf
 
 The package is licensed under a BSD license, described in LICENSE. 
 
