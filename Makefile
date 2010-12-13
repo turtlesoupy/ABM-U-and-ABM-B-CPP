@@ -1,24 +1,23 @@
-CC = gcc
-CPP = g++
-CFLAGS = -Wall -O2
-OBJECTS = sample_parser.o abm_interfaces.o run_abm.o mt19937ar.o
-ABMUOBJECTS = $(OBJECTS) abmu.o abmu_interfaces.o
-ABMBOBJECTS = $(OBJECTS) abmb.o abmb_interfaces.o
+CXX = g++
+CXXFLAGS = -I./include -Wall -O2
+OBJECTS = src/sample_parser.o src/abm_interfaces.o src/run_abm.o src/mt19937ar.o
+ABMU_OBJECTS = $(OBJECTS) src/abmu.o src/abmu_interfaces.o
+ABMB_OBJECTS = $(OBJECTS) src/abmb.o src/abmb_interfaces.o
 LIBS = -lyajl
 
 all: abmu abmb
 
-abmu: $(ABMUOBJECTS)
-	$(CPP) $(LDFLAGS) -o $@ $(ABMUOBJECTS) $(LIBS)
+abmu: $(ABMU_OBJECTS)
+	$(CXX) $(LDFLAGS) -o $@ $(ABMU_OBJECTS) $(LIBS)
 
-abmb: $(ABMBOBJECTS) abmb.o abmb_interfaces.o
-	$(CPP) $(LDFLAGS) -o $@ $(ABMBOBJECTS) $(LIBS)
+abmb: $(ABMB_OBJECTS)
+	$(CXX) $(LDFLAGS) -o $@ $(ABMB_OBJECTS) $(LIBS)
 
 %.o : %.cpp
-	$(CPP) $(CFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 %.o : %.c
-	$(CPP) $(CFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o abmu abmb
+	rm -f src/*.o abmu abmb
