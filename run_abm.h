@@ -5,6 +5,6 @@
 
 typedef std::pair<double, double> ReflectPair;
 
-ReflectPair runABM(int nSamples, double azimuthalAngle, double polarAngle, const InterfaceList &interfaceList);
+ReflectPair runABM(int nSamples, double azimuthalAngle, double polarAngle, InterfaceList &interfaceList);
 
 #endif

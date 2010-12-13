@@ -1,6 +1,7 @@
 #ifndef __ABM_INTERFACES_H
 #define __ABM_INTERFACES_H
 #include <vector>
+#include <iostream>
 #include <fstream>
 #include <string>
 
@@ -33,8 +34,6 @@ class ABMInterface {
     double absorptionBelow;
     double thicknessAbove;
     double thicknessBelow;
-    int splitAbove;
-    int splitBelow;
     std::string name;
 
     ABMInterface()  :
@@ -48,22 +47,46 @@ class ABMInterface {
         absorptionBelow(0.0),
         thicknessAbove(0.0),
         thicknessBelow(0.0),
-        splitAbove(0),
-        splitBelow(0),
         name("Unnamed Interface")
     {
 
     }
+    friend std::ostream &operator<<(std::ostream&, const ABMInterface&);
 };
 
-typedef std::vector<ABMInterface> InterfaceList;
-
-class ABMInterfaces {
+class InterfaceList {
     public:
-        ABMInterfaces(const std::string &dataDirectory);
-        ~ABMInterfaces();
+        virtual void prepareForSample() = 0;
+        ABMInterface getInterface(int index) const {
+            return interfaces[index];
+        }
+        size_t size() const {
+            return interfaces.size();
+        }
+    protected:
+        std::vector<ABMInterface> interfaces;
+};
 
-        InterfaceList buildInterfaces(const Sample &sample, int wavelength);
+class ABMUInterfaceList : public InterfaceList {
+    public:
+        ABMUInterfaceList(const Sample &sample, double airRI, double cuticleRI, double mesophyllRI, double
+                antidermalRI, double mesophyllAbsorption, double mesophyllThickness);
+        virtual void prepareForSample();
+    private:
+        double airRI;
+        double cuticleRI;
+        double mesophyllRI;
+        double antidermalRI;
+        double mesophyllAbsorption;
+        double mesophyllThickness;
+};
+
+class ABMInterfaceListBuilder {
+    public:
+        ABMInterfaceListBuilder(const std::string &dataDirectory);
+        ~ABMInterfaceListBuilder();
+
+        InterfaceList *buildInterfaces(const Sample &sample, int wavelength);
 
     private:
         void readAllData(const std::string &dataDirectory);

@@ -1,0 +1,15 @@
+{
+    "wholeLeafThickness": 2.04e-4,
+    "cuticleUndulationsAspectRatio": 10.0,
+    "epidermisCellCapsAspectRatio": 5.0,
+    "spongyCellCapsAspectRatio": 5.0,
+    "palisadeCellCapsAspectRatio": 1.0,
+    "linginConcentration": 59.245619,
+    "proteinConcentration": 53.08714,
+    "celluloseConcentration": 0.0,
+    "chlorophyllAConcentration": 2.895146,
+    "chlorophyllBConcentration": 0.79866,
+    "carotenoidConcentration": 0.658895,
+    "mesophyllFraction": 0.8,
+    "bifacial": false
+}
