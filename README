@@ -1,0 +1,20 @@
+ABM-B and ABM-U
+
+This is a reference implementation of the ABM-B and ABM-U models described in
+http://www.npsg.uwaterloo.ca/resources/docs/rse2006.pdf, with modifications
+descriped in http://www.npsg.uwaterloo.ca/resources/docs/ieee07-8.pdf
+
+The package is licensed under a BSD license, described in LICENSE. 
+
+This was released by the Natural Phenomenon Simulation Group at University of
+Waterloo in Waterloo, Ontario, Canada. Please visit http://www.npsg.uwaterloo.ca
+for more information.
+
+Usage:
+    - Run "make abmu" to make an abmu executible. Run "make abmb" to 
+      make an abmb executible. Afterwards, run "./abmu" or "./abmb" and follow
+      the instructions.
+
+Requirements:
+    - The yajl JSON parsing library headers: http://lloyd.github.com/yajl/
+      (available in Ubuntu under libyajl-dev)
