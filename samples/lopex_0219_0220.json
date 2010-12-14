@@ -10,6 +10,5 @@
     "chlorophyllAConcentration": 3.9775,
     "chlorophyllBConcentration": 1.1613,
     "carotenoidConcentration": 1.1323,
-    "mesophyllFraction": 0.5,
-    "bifacial": true
+    "mesophyllFraction": 0.5
 }
