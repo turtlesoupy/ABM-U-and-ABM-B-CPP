@@ -35,6 +35,13 @@ DataList::~DataList() {
 
 double DataList::lookup(int wavelength) const {
     int ind = (wavelength - begin) / (double)step;
+    if(ind < 0) {
+        std::cerr << "Warning, wavelength " << wavelength << " is below data point, clamping" << std::endl;
+        ind = 0;
+    } else if( ind >= data.size()) {
+        std::cerr << "Warning, wavelength " << wavelength << " is above data point, clamping" << std::endl;
+        ind = data.size() - 1;
+    }
     return data[ind];
 }
 
@@ -56,9 +63,6 @@ std::ostream& operator<<(std::ostream& os, const ABMInterface& x)
 
     return os;
 }
-
-
-
 
 ABMInterfaceListBuilder::ABMInterfaceListBuilder(const std::string &dataDirectory)  :
     dataDirectory(dataDirectory)
@@ -89,6 +93,7 @@ void ABMInterfaceListBuilder::readAllData(const std::string &dataDirectory) {
     celluloseAbsorption.adjustData(1.0 / 10.0);
     chlorophyllAbsorption.adjustData(1.0 / 10.0);
     proteinAbsorption.adjustData(1.0 / 10.0);
+    waterAbsorption.adjustData(100);
 }
 
 void ABMInterfaceListBuilder::readData(std::string filename, DataList &dlist) {
@@ -113,7 +118,6 @@ InterfaceList* ABMInterfaceListBuilder::buildInterfaces(const Sample &sample, in
    double celluloseAbsorptionCoefficient = sample.celluloseConcentration * celluloseAbsorption.lookup(wavelength);
    double linginAbsorptionCoefficient = sample.linginConcentration * celluloseAbsorption.lookup(wavelength); //Use cellulose for lingin due to lack of data
    double waterAbsorptionCoefficient = waterAbsorption.lookup(wavelength);
-
    double mesophyllAbsorption = proteinAbsorptionCoefficient + chlorophyllAbsorptionCoefficient + 
        carotenoidAbsorptionCoefficient + celluloseAbsorptionCoefficient + linginAbsorptionCoefficient +
        waterAbsorptionCoefficient;
