@@ -5,8 +5,11 @@
 
 #include "abm_interfaces.h"
 #include "run_abm.h"
-#include "vector.hpp"
-#include "mt19937ar.h"
+#include "vector.h"
+
+extern "C" {
+    #include "mt19937ar.h"
+}
 
 #define RANDOM_FUNCTION genrand_real2
 
@@ -75,7 +78,6 @@ vec3 brakkeScattering(const vec3 &vector, double delta) {
 
 ReflectPair runABM(int nSamples, double azimuthalAngle, 
         double polarAngle, InterfaceList &interfaceList) {
-
     int startState;
     int reflectedState;
     int transmittedState;
@@ -91,12 +93,8 @@ ReflectPair runABM(int nSamples, double azimuthalAngle,
         cos(polarAngle)
     );
 
-    /*
-    std::cerr << "Starting position [" << startingPosition.x 
-        << ", " << startingPosition.y << ", " << startingPosition.z <<
-        "]"
-        << std::endl;
-    */
+    startingPosition.z *= -1; /* Leaf interfaces are listed adaxial-first, 
+                                 orientation is generally assumed with respect to abaxial */
 
     if(startingPosition.z < 0) {
         startState = 0;

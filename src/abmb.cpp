@@ -1,17 +1,17 @@
 #include <cmath>
 #include <cstdio>
 #include <ctime>
-#include <vector>
-#include <string>
-#include <iostream>
 
 #include "abmb_interfaces.h"
 #include "run_abm.h"
 #include "sample_parser.h"
 #include "sample.h"
-#include "mt19937ar.h"
 #include "stdlib.h"
 #include "unistd.h"
+
+extern "C" {
+    #include "mt19937ar.h"
+}
 
 void usage() { 
     fprintf(stderr, "Usage: ./abmb [options] <sample_file.json> <output_file.csv>\n");

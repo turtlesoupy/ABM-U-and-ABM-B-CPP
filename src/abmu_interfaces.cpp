@@ -8,7 +8,10 @@
 #include "abm_interfaces.h"
 #include "abmu_interfaces.h"
 #include "sample.h"
-#include "mt19937ar.h"
+
+extern "C" {
+    #include "mt19937ar.h"
+}
 
 #define RANDOM_FUNCTION genrand_real2
 

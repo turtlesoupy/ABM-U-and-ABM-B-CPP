@@ -1,5 +1,7 @@
+CC=gcc
 CXX = g++
-CXXFLAGS = -I./include -Wall -O2
+CFLAGS=-I./include -Wall -O2
+CXXFLAGS=$(CFLAGS)
 OBJECTS = src/sample_parser.o src/abm_interfaces.o src/run_abm.o src/mt19937ar.o
 ABMU_OBJECTS = $(OBJECTS) src/abmu.o src/abmu_interfaces.o
 ABMB_OBJECTS = $(OBJECTS) src/abmb.o src/abmb_interfaces.o
@@ -17,7 +19,7 @@ abmb: $(ABMB_OBJECTS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 %.o : %.c
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f src/*.o abmu abmb
