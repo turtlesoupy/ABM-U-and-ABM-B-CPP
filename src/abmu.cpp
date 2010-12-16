@@ -1,6 +1,10 @@
 #include <cmath>
 #include <cstdio>
 #include <ctime>
+#include <vector>
+#include <algorithm>
+#include <queue>
+#include <pthread.h>
 
 #include "abmu_interfaces.h"
 #include "run_abm.h"
@@ -8,9 +12,11 @@
 #include "sample.h"
 #include "stdlib.h"
 #include "unistd.h"
+
 extern "C" {
     #include "mt19937ar.h"
 }
+
 
 void usage() { 
     fprintf(stderr, "Usage: ./abmu [options] <sample_file.json> <output_file.csv>\n");
@@ -23,8 +29,69 @@ void usage() {
     fprintf(stderr, "\t-w <int>\tWavelength start (nanometers)\n");
     fprintf(stderr, "\t-e <int>\tWavelength end (nanometers)\n");
     fprintf(stderr, "\t-d <path>\tData directory\n");
+    fprintf(stderr, "\t-t <int>\tNumber of threads\n");
     fprintf(stderr, "\n");
 }
+
+
+struct WorkTask {
+    int wavelength; 
+    int numSamples;
+    double polarAngle;
+    double azimuthalAngle;
+    ABMUInterfaceListBuilder  *builder;
+    Sample *sample;
+};
+
+struct WorkResult {
+    int wavelength;
+    ReflectPair pair;
+};
+
+bool resultSort (WorkResult i,WorkResult j) { return (i.wavelength<j.wavelength); }
+
+
+std::vector<WorkResult> modelResults;
+std::queue<WorkTask>  workTasks;
+pthread_mutex_t workMutex;
+pthread_mutex_t resultsMutex;
+
+bool workEmpty() {
+    return workTasks.empty();
+}
+
+void *threadWork(void *arg) {
+    WorkTask task;
+    pthread_t tid = pthread_self();
+    while(true) {
+        pthread_mutex_lock(&workMutex);
+        if(workTasks.empty()) {
+            pthread_mutex_unlock(&workMutex);
+            break;
+        } else {
+            task = workTasks.front();
+            workTasks.pop();
+            pthread_mutex_unlock(&workMutex);
+        }
+
+        fprintf(stderr, "Wavelength %d\t", task.wavelength);
+        fflush(stderr);
+
+        WorkResult result;
+        result.wavelength = task.wavelength;
+        InterfaceList *interfaces = task.builder->buildInterfaces(*task.sample, task.wavelength);
+        result.pair = runABM(task.numSamples, task.azimuthalAngle, task.polarAngle, *interfaces);
+        delete interfaces;
+
+        const ReflectPair &rt = result.pair;
+        fprintf(stderr, " r:%f, t:%f, a:%f [tid %ld]\n", rt.first, rt.second, 1-(rt.first + rt.second), (long)tid);
+        pthread_mutex_lock(&resultsMutex);
+        modelResults.push_back(result);
+        pthread_mutex_unlock(&resultsMutex);
+    }
+    pthread_exit((void*) 0);
+}
+
 
 int main(int argc, char *argv[]) {
     Sample sample;
@@ -40,8 +107,9 @@ int main(int argc, char *argv[]) {
     int wavelengthEnd   = 2500;
     int c;
     int step = 5;
+    int numThreads = 4;
 
-    while((c = getopt(argc, argv, "n:a:p:w:s:e:d:")) != -1) {
+    while((c = getopt(argc, argv, "n:a:p:w:s:e:d:t:")) != -1) {
         switch(c) {
             case 'n':
                 numSamples = atoi(optarg);
@@ -63,6 +131,9 @@ int main(int argc, char *argv[]) {
                 break;
             case 'd':
                 datadir = optarg;
+                break;
+            case 't':
+                numThreads = atoi(optarg);
                 break;
             case '?':
                 break;
@@ -96,21 +167,53 @@ int main(int argc, char *argv[]) {
     }
 
 
+    pthread_t *workThreads = new pthread_t[numThreads];
+    pthread_attr_t attr;
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
     if(parseSampleFromFile(&sample, sampleFile)) {
         fprintf(outputFile, "wavelength, reflectance, transmittance, absorptance\n");
 
         fprintf(stderr, "Running simulation (%d samples, wavelengths %dnm-%dnm)...\n",
                 numSamples, wavelengthStart, wavelengthEnd);
 
+        //Populate work queue
         ABMUInterfaceListBuilder interfaceBuilder(datadir);
         for(int w = wavelengthStart; w <= wavelengthEnd; w+= step) {
-            fprintf(stderr, "Wavelength %d\t", w);
-            fflush(stderr);
-            InterfaceList *interfaces = interfaceBuilder.buildInterfaces(sample, w);
-            ReflectPair rt = runABM(numSamples, azimuthalAngle, polarAngle, *interfaces);
-            delete interfaces;
+            WorkTask task;
+            task.wavelength = w;
+            task.builder = &interfaceBuilder;
+            task.sample = &sample;
+            task.numSamples = numSamples;
+            task.azimuthalAngle = azimuthalAngle;
+            task.polarAngle = polarAngle;
+            workTasks.push(task);
+        }
 
-            fprintf(stderr, " r:%f, t:%f, a:%f\n", rt.first, rt.second, 1-(rt.first + rt.second));
+        //Init threads
+        pthread_attr_init(&attr);
+        pthread_mutex_init(&workMutex, NULL);
+        pthread_mutex_init(&resultsMutex, NULL);
+        for(int i = 0; i <numThreads; i++) {
+            pthread_create(&workThreads[i], &attr, threadWork, (void *)i);
+        }
+        pthread_attr_destroy(&attr);
+        //Wait on threads
+        for(int i = 0; i < numThreads; i++) {
+            void *status;
+            pthread_join(workThreads[i], &status);
+        }
+        pthread_mutex_destroy(&workMutex);
+        pthread_mutex_destroy(&resultsMutex);
+
+
+        std::sort(modelResults.begin(), modelResults.end(), resultSort);
+
+        //Spit results
+        for(std::vector<WorkResult>::iterator result = modelResults.begin();
+                result != modelResults.end(); result++) {
+            int w = result->wavelength;
+            ReflectPair rt = result->pair;
             fprintf(outputFile, "%d,%f,%f,%f\n", w, rt.first, rt.second, 1-(rt.first+rt.second));
             fflush(outputFile);
         }
@@ -120,9 +223,11 @@ int main(int argc, char *argv[]) {
     }
 
 
+    delete []workThreads;
     fclose(outputFile);
     fclose(sampleFile);
 
 
-    return retcode;
+    pthread_exit((void *)retcode);
+    //return retcode;
 }
