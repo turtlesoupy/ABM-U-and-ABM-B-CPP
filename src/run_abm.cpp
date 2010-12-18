@@ -13,8 +13,12 @@ extern "C" {
 
 #define RANDOM_FUNCTION genrand_real2
 
-double freePathLength(const vec3 &vector, const vec3 &normal, double cosI, double absorptionCoefficient) {
-    return -(1/absorptionCoefficient) * log(RANDOM_FUNCTION()) * cos(cosI);
+double freePathLength(const vec3 &vector, const vec3 &normal, double cosI, double absorptionCoefficient, bool inVitro) {
+    if(inVitro) {
+        return -(1/absorptionCoefficient) * log(RANDOM_FUNCTION()) * cosI;
+    } else {
+        return -(1/absorptionCoefficient) * log(RANDOM_FUNCTION()) * cos(cosI);
+    }
 }
 
 vec3 reflect(const vec3 &vector, const vec3 &normal, double cosI) {
@@ -77,7 +81,7 @@ vec3 brakkeScattering(const vec3 &vector, double delta) {
 }
 
 ReflectPair runABM(int nSamples, double azimuthalAngle, 
-        double polarAngle, InterfaceList &interfaceList) {
+        double polarAngle, bool inVitro, InterfaceList &interfaceList) {
     int startState;
     int reflectedState;
     int transmittedState;
@@ -148,7 +152,7 @@ ReflectPair runABM(int nSamples, double azimuthalAngle,
 
             double normalAngle = -direction.Dot(normal);
 
-            if(thickness > 0 && freePathLength(direction, normal, normalAngle, absorption) < thickness) {
+            if(thickness > 0 && freePathLength(direction, normal, normalAngle, absorption, inVitro) < thickness) {
                 state = absorbedState;
                 break;
             } else {

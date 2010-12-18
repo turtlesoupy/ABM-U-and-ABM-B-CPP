@@ -34,7 +34,7 @@ DataList::~DataList() {
 }
 
 double DataList::lookup(int wavelength) const {
-    int ind = (wavelength - begin) / (double)step;
+    unsigned int ind = (wavelength - begin) / (double)step;
     if(ind < 0) {
         std::cerr << "Warning, wavelength " << wavelength << " is below data point, clamping" << std::endl;
         ind = 0;

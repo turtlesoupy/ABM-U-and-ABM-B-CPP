@@ -30,11 +30,13 @@ void usage() {
     fprintf(stderr, "\t-e <int>\tWavelength end (nanometers)\n");
     fprintf(stderr, "\t-d <path>\tData directory\n");
     fprintf(stderr, "\t-t <int>\tNumber of threads\n");
+    fprintf(stderr, "\t-v <int>\tIn vitro mode (disable sieve effect)\n");
     fprintf(stderr, "\n");
 }
 
 
 struct WorkTask {
+    bool inVitro;
     int wavelength; 
     int numSamples;
     double polarAngle;
@@ -62,7 +64,6 @@ bool workEmpty() {
 
 void *threadWork(void *arg) {
     WorkTask task;
-    pthread_t tid = pthread_self();
     while(true) {
         pthread_mutex_lock(&workMutex);
         if(workTasks.empty()) {
@@ -74,17 +75,14 @@ void *threadWork(void *arg) {
             pthread_mutex_unlock(&workMutex);
         }
 
-        fprintf(stderr, "Wavelength %d\t", task.wavelength);
-        fflush(stderr);
-
         WorkResult result;
         result.wavelength = task.wavelength;
         InterfaceList *interfaces = task.builder->buildInterfaces(*task.sample, task.wavelength);
-        result.pair = runABM(task.numSamples, task.azimuthalAngle, task.polarAngle, *interfaces);
+        result.pair = runABM(task.numSamples, task.azimuthalAngle, task.polarAngle, task.inVitro, *interfaces);
         delete interfaces;
 
         const ReflectPair &rt = result.pair;
-        fprintf(stderr, " r:%f, t:%f, a:%f [tid %ld]\n", rt.first, rt.second, 1-(rt.first + rt.second), (long)tid);
+        fprintf(stderr, "Wavelength %d\t r:%f, t:%f, a:%f\n", task.wavelength, rt.first, rt.second, 1-(rt.first + rt.second));
         pthread_mutex_lock(&resultsMutex);
         modelResults.push_back(result);
         pthread_mutex_unlock(&resultsMutex);
@@ -108,8 +106,9 @@ int main(int argc, char *argv[]) {
     int c;
     int step = 5;
     int numThreads = 4;
+    bool inVitro = false;
 
-    while((c = getopt(argc, argv, "n:a:p:w:s:e:d:t:")) != -1) {
+    while((c = getopt(argc, argv, "n:a:p:w:s:e:d:t:v")) != -1) {
         switch(c) {
             case 'n':
                 numSamples = atoi(optarg);
@@ -134,6 +133,9 @@ int main(int argc, char *argv[]) {
                 break;
             case 't':
                 numThreads = atoi(optarg);
+                break;
+            case 'v':
+                inVitro = true;
                 break;
             case '?':
                 break;
@@ -187,6 +189,7 @@ int main(int argc, char *argv[]) {
             task.numSamples = numSamples;
             task.azimuthalAngle = azimuthalAngle;
             task.polarAngle = polarAngle;
+            task.inVitro = inVitro;
             workTasks.push(task);
         }
 
