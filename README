@@ -16,6 +16,7 @@ Usage:
       run "./abmu samples/lopex_0219-0220.json output.csv" 
       or  "./abmb samples/lopex_0141-0142.json output.csv". You can specify more
       detailed options too, just run "./abmu" to see them all.
+    - Concentrations should be specified in g/cm^3
     - Data has been included in the "data" subdirectory. Descriptions of the
       data is available here: http://www.npsg.uwaterloo.ca/data.php
 

@@ -111,12 +111,13 @@ void ABMInterfaceListBuilder::readData(std::string filename, DataList &dlist) {
 }
 
 InterfaceList* ABMInterfaceListBuilder::buildInterfaces(const Sample &sample, int wavelength) {
-   double proteinAbsorptionCoefficient     = sample.proteinConcentration * proteinAbsorption.lookup(wavelength);
+   const double cmg_to_mkg = 1000; //g/cm^3 to kg/m^3 
+   double proteinAbsorptionCoefficient     = sample.proteinConcentration * cmg_to_mkg * proteinAbsorption.lookup(wavelength);
    double chlorophyllAbsorptionCoefficient = (sample.chlorophyllAConcentration + sample.chlorophyllBConcentration)  
-       * chlorophyllAbsorption.lookup(wavelength);
-   double carotenoidAbsorptionCoefficient = sample.carotenoidConcentration * carotenoidAbsorption.lookup(wavelength);
-   double celluloseAbsorptionCoefficient = sample.celluloseConcentration * celluloseAbsorption.lookup(wavelength);
-   double linginAbsorptionCoefficient = sample.linginConcentration * celluloseAbsorption.lookup(wavelength); //Use cellulose for lingin due to lack of data
+       * cmg_to_mkg * chlorophyllAbsorption.lookup(wavelength);
+   double carotenoidAbsorptionCoefficient = sample.carotenoidConcentration * cmg_to_mkg * carotenoidAbsorption.lookup(wavelength);
+   double celluloseAbsorptionCoefficient = sample.celluloseConcentration * cmg_to_mkg * celluloseAbsorption.lookup(wavelength);
+   double linginAbsorptionCoefficient = sample.linginConcentration * cmg_to_mkg * celluloseAbsorption.lookup(wavelength); //Use cellulose for lingin due to lack of data
    double waterAbsorptionCoefficient = waterAbsorption.lookup(wavelength);
    double mesophyllAbsorption = proteinAbsorptionCoefficient + chlorophyllAbsorptionCoefficient + 
        carotenoidAbsorptionCoefficient + celluloseAbsorptionCoefficient + linginAbsorptionCoefficient +

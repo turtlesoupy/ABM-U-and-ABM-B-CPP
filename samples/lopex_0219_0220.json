@@ -4,11 +4,11 @@
     "epidermisCellCapsAspectRatio": 5.0,
     "spongyCellCapsAspectRatio": 5.0,
     "palisadeCellCapsAspectRatio": 1.0,
-    "linginConcentration": 10.7441,
-    "proteinConcentration": 78.7059,
-    "celluloseConcentration": 37.7565,
-    "chlorophyllAConcentration": 3.9775,
-    "chlorophyllBConcentration": 1.1613,
-    "carotenoidConcentration": 1.1323,
+    "linginConcentration": 0.0107441,
+    "proteinConcentration": 0.0787059,
+    "celluloseConcentration": 0.0377565,
+    "chlorophyllAConcentration": 0.0039775,
+    "chlorophyllBConcentration": 0.0011613,
+    "carotenoidConcentration": 0.0011323,
     "mesophyllFraction": 0.5
 }
