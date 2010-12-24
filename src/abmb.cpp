@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
             case 't':
                 numThreads = atoi(optarg);
                 break;
-            case 'v':
+            case 'q':
                 disableSieve = true;
                 break;
             case '?':
