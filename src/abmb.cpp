@@ -30,13 +30,13 @@ void usage() {
     fprintf(stderr, "\t-e <int>\tWavelength end (nanometers)\n");
     fprintf(stderr, "\t-d <path>\tData directory\n");
     fprintf(stderr, "\t-t <int>\tNumber of threads\n");
-    fprintf(stderr, "\t-v <int>\tIn vitro mode (disable sieve effect)\n");
+    fprintf(stderr, "\t-q\tDisable sieve and detour effects\n");
     fprintf(stderr, "\n");
 }
 
 
 struct WorkTask {
-    bool inVitro;
+    bool disableSieve;
     int wavelength; 
     int numSamples;
     double polarAngle;
@@ -78,7 +78,7 @@ void *threadWork(void *arg) {
         WorkResult result;
         result.wavelength = task.wavelength;
         InterfaceList *interfaces = task.builder->buildInterfaces(*task.sample, task.wavelength);
-        result.pair = runABM(task.numSamples, task.azimuthalAngle, task.polarAngle, task.inVitro, *interfaces);
+        result.pair = runABM(task.numSamples, task.azimuthalAngle, task.polarAngle, task.disableSieve, *interfaces);
         delete interfaces;
 
         const ReflectPair &rt = result.pair;
@@ -106,9 +106,9 @@ int main(int argc, char *argv[]) {
     int c;
     int step = 5;
     int numThreads = 4;
-    bool inVitro = false;
+    bool disableSieve = false;
 
-    while((c = getopt(argc, argv, "n:a:p:w:s:e:d:t:v")) != -1) {
+    while((c = getopt(argc, argv, "n:a:p:w:s:e:d:t:q")) != -1) {
         switch(c) {
             case 'n':
                 numSamples = atoi(optarg);
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
                 numThreads = atoi(optarg);
                 break;
             case 'v':
-                inVitro = true;
+                disableSieve = true;
                 break;
             case '?':
                 break;
@@ -189,7 +189,7 @@ int main(int argc, char *argv[]) {
             task.numSamples = numSamples;
             task.azimuthalAngle = azimuthalAngle;
             task.polarAngle = polarAngle;
-            task.inVitro = inVitro;
+            task.disableSieve = disableSieve;
             workTasks.push(task);
         }
 
