@@ -1,8 +1,12 @@
-ABM-B and ABM-U
+ABM-B and ABM-U (C++ version)
 
 This is a reference implementation of the ABM-B and ABM-U models described in
 http://www.npsg.uwaterloo.ca/resources/docs/rse2006.pdf, with modifications
 described in http://www.npsg.uwaterloo.ca/resources/docs/ieee07-8.pdf
+
+For detailed information, visit the online pages for:
+    - ABM-U: http://www.npsg.uwaterloo.ca/models/ABMU.php
+    - ABM-B: http://www.npsg.uwaterloo.ca/models/ABMB.php
 
 The package is licensed under a BSD license, described in LICENSE. 
 
@@ -13,13 +17,64 @@ for more information.
 Usage:
     - Run "make abmu" to make an abmu executible. Run "make abmb" to 
       make an abmb executible. Afterwards,
-      run "./abmu samples/lopex_0219-0220.json output.csv" 
-      or  "./abmb samples/lopex_0141-0142.json output.csv". You can specify more
+      run "./abmb samples/lopex_0219-0220.json output.csv" 
+      or  "./abmu samples/lopex_0141-0142.json output.csv". You can specify more
       detailed options too, just run "./abmu" to see them all.
-    - Concentrations should be specified in g/cm^3
-    - Data has been included in the "data" subdirectory. Descriptions of the
-      data is available here: http://www.npsg.uwaterloo.ca/data.php
+
+Command line flags:
+    - -n <int>: Specifies the number of samples to run the monte carlo simulation.
+                We recommend 10^5 to get asymptotic convergence
+
+    - -a <float>: Azimuthal angle in degrees to fire rays from.
+
+    - -p <float>: Polar angle in degrees to fire rays from. Values from 0 to 90
+                  correspond to the abaxial surface, while values from 90 to 180
+                  correspond to the adaxial surface.
+
+    - -s <int>: Wavelength step in nm. Output will occur with every <step> wavelengths
+
+    - -w <int>: Wavelength start in nm. Output will start with this wavelength.
+
+    - -e <int>: Wavelength endin nm. Output will end with this wavelength.
+
+    - -d <path>: Data directory. The data is outlined in the Code Organization section
+                 below.
+
+    - -t <int>:  Number of threads. Rule of thumb is double the number of parallel processing
+                 units in your computer.
+
+    - -q: Disable sieve and detour effects. This is an in-vivo Vs. in-vitro modelling issue that is
+          outlined in the paper here: http://www.npsg.uwaterloo.ca/resources/docs/ieee07-8.pdf
 
 Requirements:
     - The yajl JSON parsing library headers: http://lloyd.github.com/yajl/
       (available in Ubuntu under libyajl-dev)
+
+    - pthreads
+
+Code Organization:
+    - 'src/': This folder contains all the code files necessary for ABM-U/ABM-B to run.
+
+    - 'include/': This folder contains all the header files necessary for ABM-U/ABM-B to run.
+
+    - 'data/': This folder contains the data files (e.g., refractive indices) that are needed
+               to run ABM-B or ABM-U. All are available here: http://www.npsg.uwaterloo.ca/data/leaves.php
+               - 'caro-PAS-400-2500.txt': Specific absorption coefficient of carotenoids (400-2500nm)
+               - 'cellulose400-2500.txt': Specific absorption coefficient of cellulose (400-2500nm)
+               - 'chloAB-DFA-400-2500.txt': Specific absorption coefficient of chlorophyll a+b (400-2500nm)
+               - 'sacwH400-2500.txt': Specific absorption coefficient of water (400-2500nm)
+               - 'raH400-2500.txt': Refractive index (real part) of antidermal cell wall (400-2500nm)
+               - 'rcH400-2500.txt': Refractive index (real part) of epicuticular wax (400-2500nm)
+               - 'rmH400-2500.txt': Refractive index (real part) of wet mesophyll wall (400-2500nm)
+
+    - 'samples/': This folder contains data definitions for samples used for testing of ABM-U/ABM-B.
+                  All samples correspond to those mentioned in http://www.npsg.uwaterloo.ca/resources/docs/rse2006.pdf.
+                  Samples are specified in a json-like format. 
+               - 'lopex_0141_0142.json': Soybean (Soja hispida or Glycine max), a bifacial leaf for ABM-B
+               - 'lopex_0219_0220.json': Corn (Zea mays L.), a unifacial leaf for ABM-U
+
+Notes:
+    - All concentrations are specified in g/cm^3, and lengths in meters.
+
+    - Data is piecewise-constant interpolated accross 400-2500nm, with data points
+      every five nanometers.
