@@ -151,7 +151,6 @@ ReflectPair runABM(int nSamples, double azimuthalAngle,
             }
 
             double normalAngle = -direction.Dot(normal);
-
             if(thickness > 0 && freePathLength(direction, normal, normalAngle, absorption, disableSieve) < thickness) {
                 state = absorbedState;
                 break;
@@ -165,7 +164,7 @@ ReflectPair runABM(int nSamples, double azimuthalAngle,
                 } else {
                     state = refractState;
                     direction = refract(direction, normal, normalAngle, n1, n2);
-                    if(perturbanceReflect != INFINITY) {
+                    if(perturbanceRefract != INFINITY) {
                         direction = brakkeScattering(direction, perturbanceRefract);
                     }
                 }
